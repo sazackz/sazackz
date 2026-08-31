@@ -35,11 +35,6 @@ status: jacked_in
 ### `> stats.exe`
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=sazackz&show_icons=true&theme=synthwave&hide_border=true&bg_color=0d1117&title_color=00FFF7&icon_color=FF00E4&text_color=c9d1d9" width="48%" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=sazackz&layout=compact&theme=synthwave&hide_border=true&bg_color=0d1117&title_color=00FFF7&text_color=c9d1d9" width="48%" />
-</p>
-
-<p align="center">
   <img src="https://github-readme-streak-stats.herokuapp.com/?user=sazackz&theme=radical&hide_border=true&background=0d1117&ring=FF00E4&fire=00FFF7&currStreakLabel=00FFF7" width="70%" />
 </p>
 
