@@ -10,13 +10,13 @@
 
 ### `> whoami`
 
-```yaml
-handle: sazackz
-class: full-stack netrunner
-runtime: JavaScript / Node.js / Electron
-current_project: HeliosLauncher (forked)
-status: struggling_on
-```
+<table align="center">
+<tr><td>⚔️&nbsp;<b>Handle</b></td><td><code>sazackz</code></td></tr>
+<tr><td>🗡️&nbsp;<b>Class</b></td><td>Full-stack netrunner</td></tr>
+<tr><td>⚙️&nbsp;<b>Runtime</b></td><td>JavaScript&nbsp;·&nbsp;Node.js&nbsp;·&nbsp;Electron</td></tr>
+<tr><td>📜&nbsp;<b>Current project</b></td><td>HeliosLauncher <i>(forked)</i></td></tr>
+<tr><td>🩸&nbsp;<b>Status</b></td><td>Struggling on</td></tr>
+</table>
 
 ---
 
