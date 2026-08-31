@@ -32,6 +32,49 @@ status: struggling_on
 
 ---
 
+### `> conquests.log`
+
+<table>
+<tr>
+<td width="100%">
+
+**⚔ HeliosLauncher**
+Custom launcher for modded Minecraft, forked and modified — Electron + Node.js
+`JavaScript` `Electron`
+
+</td>
+</tr>
+<tr>
+<td width="100%">
+
+**⚔ MTE-Thomson Catálogo**
+Desktop/tablet app for browsing product instruction sheets (PDF) by category — Electron + React + Node/Express + MySQL
+`Electron` `React` `Node.js` `MySQL`
+
+</td>
+</tr>
+<tr>
+<td width="100%">
+
+**⚔ Cidade+**
+Full stack platform for citizens to report and track urban issues — Spring Boot + MySQL, React web + React Native mobile
+`Java` `Spring Boot` `MySQL` `React` `React Native`
+
+</td>
+</tr>
+<tr>
+<td width="100%">
+
+**⚔ Risco Climático Ocupacional**
+Mobile app (Expo) + Node/Express backend to assess occupational climate risk, with AI-assisted (Gemini) recommendations
+`React Native` `Expo` `Node.js` `MySQL`
+
+</td>
+</tr>
+</table>
+
+---
+
 ### `> stats.exe`
 
 <p align="center">
