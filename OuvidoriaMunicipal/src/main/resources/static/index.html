@@ -118,6 +118,9 @@
   .panel { display: none; }
   .panel.active { display: block; }
   .page-title { font-size: 20px; margin: 0 0 18px; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .page-header .page-title { margin: 0; }
+  .page-header .btn { flex-shrink: 0; white-space: nowrap; }
 
   .card {
     background: var(--card);
@@ -304,8 +307,11 @@
 
     <!-- RECLAMACOES -->
     <section id="panel-reclamacoes" class="panel active">
-      <h2 class="page-title">Reclamações</h2>
-      <div class="card">
+      <div class="page-header">
+        <h2 class="page-title">Reclamações</h2>
+        <button type="button" class="btn" id="btn-toggle-reclamacao" aria-expanded="false" aria-controls="card-nova-reclamacao">+ Abrir reclamação</button>
+      </div>
+      <div class="card" id="card-nova-reclamacao" hidden>
         <h2>Nova reclamação</h2>
         <form id="form-reclamacao">
           <label>Título <input name="titulo" required></label>
@@ -321,7 +327,8 @@
           <label>Bairro <input name="bairro" required></label>
           <label>CEP <input name="cep"></label>
           <div class="form-actions">
-            <button type="submit" class="btn">Abrir reclamação</button>
+            <button type="submit" class="btn">Enviar reclamação</button>
+            <button type="button" class="btn secondary" id="btn-cancelar-reclamacao">Cancelar</button>
           </div>
         </form>
       </div>
@@ -820,6 +827,26 @@ async function avaliarReclamacao(id) {
   } catch (e) { toast(e.message, true); }
 }
 
+function alternarFormReclamacao(abrir) {
+  const card = document.getElementById('card-nova-reclamacao');
+  const btn = document.getElementById('btn-toggle-reclamacao');
+  if (abrir === undefined) abrir = card.hidden;
+  card.hidden = !abrir;
+  btn.textContent = abrir ? 'Fechar' : '+ Abrir reclamação';
+  btn.classList.toggle('secondary', abrir);
+  btn.setAttribute('aria-expanded', String(abrir));
+  if (abrir) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const t = card.querySelector('input[name=titulo]');
+    if (t && !matchMedia('(max-width: 760px)').matches) t.focus();
+  }
+}
+document.getElementById('btn-toggle-reclamacao').addEventListener('click', () => alternarFormReclamacao());
+document.getElementById('btn-cancelar-reclamacao').addEventListener('click', () => {
+  document.getElementById('form-reclamacao').reset();
+  alternarFormReclamacao(false);
+});
+
 document.getElementById('form-reclamacao').addEventListener('submit', async (e) => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(e.target));
@@ -834,6 +861,7 @@ document.getElementById('form-reclamacao').addEventListener('submit', async (e) 
     const criada = await api('/reclamacoes', { method: 'POST', body: JSON.stringify(payload) });
     toast('Reclamação aberta! Protocolo: ' + criada.protocolo);
     e.target.reset();
+    alternarFormReclamacao(false);
     carregarReclamacoes();
   } catch (err) { toast(err.message, true); }
 });
