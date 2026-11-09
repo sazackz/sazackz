@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 /*
  * =====================================================================
- * PROJETO: Ouvidoria Municipal - Sistema de Reclamacoes
+ * PROJETO: Ouvidoria - Sistema de Reclamacoes
  * Gerado a partir do diagrama de classes (UML) do trabalho de APS/APX
  * =====================================================================
  */
@@ -20,7 +20,7 @@ import java.time.LocalDate;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Iniciando o servidor REST - Ouvidoria Municipal");
+        System.out.println("Iniciando o servidor REST - Ouvidoria");
         SpringApplication.run(Main.class, args);
     }
 

@@ -1,7 +1,7 @@
 {
-  "name": "Ouvidoria Municipal",
+  "name": "Ouvidoria",
   "short_name": "Ouvidoria",
-  "description": "Sistema de reclamações da Ouvidoria Municipal",
+  "description": "Sistema de reclamações da Ouvidoria",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
