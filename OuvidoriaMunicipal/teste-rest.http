@@ -1,0 +1,76 @@
+### Listar cidadaos
+GET http://localhost:8080/api/cidadaos
+
+### Cadastrar cidadao
+POST http://localhost:8080/api/cidadaos
+Content-Type: application/json
+
+{
+  "nome": "Maria Teste",
+  "cpf": "222.333.444-55",
+  "email": "maria.teste@email.com",
+  "senha": "123456",
+  "telefone": "(11) 90000-0000",
+  "dataNascimento": "1995-07-10"
+}
+
+### Listar categorias
+GET http://localhost:8080/api/categorias
+
+### Listar orgaos
+GET http://localhost:8080/api/orgaos
+
+### Listar tecnicos
+GET http://localhost:8080/api/tecnicos
+
+### Listar reclamacoes
+GET http://localhost:8080/api/reclamacoes
+
+### Abrir reclamacao (ajuste os ids conforme o que foi carregado no banco)
+POST http://localhost:8080/api/reclamacoes
+Content-Type: application/json
+
+{
+  "titulo": "Lampada queimada na praca",
+  "descricao": "Poste sem iluminacao ha 3 dias",
+  "cidadao": { "id": 1 },
+  "categoria": { "id": 1 },
+  "orgaoResponsavel": { "id": 1 },
+  "endereco": {
+    "logradouro": "Praca Central",
+    "numero": "s/n",
+    "bairro": "Centro",
+    "cep": "01000-000"
+  }
+}
+
+### Buscar reclamacao por protocolo (ajuste o protocolo retornado no console)
+GET http://localhost:8080/api/reclamacoes/protocolo/OUV-2026-XXXXXXXX
+
+### Alterar status da reclamacao
+PATCH http://localhost:8080/api/reclamacoes/1/status
+Content-Type: application/json
+
+{
+  "status": "EM_TRIAGEM"
+}
+
+### Avaliar reclamacao
+PATCH http://localhost:8080/api/reclamacoes/1/avaliar
+Content-Type: application/json
+
+{
+  "nota": 5
+}
+
+### Abrir ordem de servico
+POST http://localhost:8080/api/ordens-servico
+Content-Type: application/json
+
+{
+  "idReclamacao": 1,
+  "idOrgao": 1
+}
+
+### Console do H2 (acesse pelo navegador): http://localhost:8080/h2-console
+### JDBC URL: jdbc:h2:mem:ouvidoria | usuario: sa | senha: (vazio)

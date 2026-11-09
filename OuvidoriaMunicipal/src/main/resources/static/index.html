@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ouvidoria">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<title>Ouvidoria Municipal</title>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --sidebar: #0f172a;
+    --sidebar-hover: #1e293b;
+    --sidebar-text: #cbd5e1;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --success: #16a34a;
+    --danger: #dc2626;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    overscroll-behavior-y: none;
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  [hidden] { display: none !important; }
+
+  /* ---------- LOGIN ---------- */
+  #tela-login {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--sidebar) 0%, var(--primary-dark) 100%);
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .login-box {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  }
+  .login-box h1 { margin: 0 0 4px; font-size: 22px; }
+  .login-box p.sub { margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+  .login-box label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; margin-top: 14px; }
+  .login-box input, .login-box select {
+    width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;
+  }
+  .login-box button.btn { width: 100%; margin-top: 20px; }
+  .login-erro { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 16px; }
+  .link-toggle {
+    text-align: center; margin-top: 16px; font-size: 13px; color: var(--primary); cursor: pointer; user-select: none;
+  }
+  .contas-teste {
+    margin-top: 20px; padding: 12px; background: #f8fafc; border: 1px dashed var(--border);
+    border-radius: 8px; font-size: 11px; color: var(--muted); line-height: 1.6;
+  }
+  .contas-teste b { color: var(--text); }
+
+  /* ---------- APP SHELL ---------- */
+  #app {
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  aside#sidebar {
+    width: 230px;
+    background: var(--sidebar);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+  .sidebar-header { padding: 20px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .sidebar-header h1 { margin: 0; font-size: 16px; color: #fff; }
+  .sidebar-header p { margin: 4px 0 0; font-size: 11px; opacity: .7; }
+  nav#nav-links { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+  nav#nav-links button {
+    text-align: left; background: none; border: none; color: var(--sidebar-text);
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; cursor: pointer;
+  }
+  nav#nav-links button:hover { background: var(--sidebar-hover); }
+  nav#nav-links button.active { background: var(--primary); color: #fff; font-weight: 600; }
+  .sidebar-footer {
+    padding: 14px 18px; border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .user-chip { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+    color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+  }
+  .user-info .nome { font-size: 13px; color: #fff; font-weight: 600; }
+  .user-info .papel { font-size: 11px; opacity: .7; }
+  .sidebar-footer button.btn { width: 100%; }
+
+  main#conteudo { flex: 1; padding: 24px; max-width: 1100px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .page-title { font-size: 20px; margin: 0 0 18px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  .card h2 { margin-top: 0; font-size: 15px; }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 4px; }
+  input, select, textarea {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .form-actions { grid-column: 1 / -1; display: flex; gap: 8px; }
+  button.btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button.btn:hover { background: var(--primary-dark); }
+  button.btn.secondary { background: var(--muted); }
+  button.btn.danger { background: var(--danger); }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e0e7ff;
+    color: var(--primary-dark);
+  }
+  .toast {
+    position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px;
+    background: var(--text); color: #fff; padding: 10px 16px;
+    border-radius: 6px; font-size: 13px; opacity: 0; transition: opacity .3s;
+    pointer-events: none; max-width: 320px; z-index: 50;
+  }
+  .toast.show { opacity: 1; }
+  .toast.error { background: var(--danger); }
+  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .row-actions button { font-size: 12px; padding: 4px 8px; }
+  .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+
+  /* ---------- MOBILE / iPHONE ---------- */
+  @media (max-width: 760px) {
+    /* iOS faz zoom em campos com fonte < 16px */
+    input, select, textarea,
+    .login-box input, .login-box select { font-size: 16px; padding: 12px; min-height: 44px; }
+    button.btn { min-height: 44px; padding: 10px 18px; font-size: 15px; }
+    .row-actions button { min-height: 36px; font-size: 13px; padding: 6px 12px; }
+    .form-actions { flex-wrap: wrap; }
+    .form-actions button { flex: 1 1 140px; }
+    form { grid-template-columns: 1fr; }
+
+    #app { flex-direction: column; }
+    /* sidebar vira barra superior fixa */
+    aside#sidebar {
+      width: 100%; height: auto; position: sticky; top: 0; z-index: 20;
+      flex-direction: row; flex-wrap: wrap; align-items: center; overflow: visible;
+      padding-top: env(safe-area-inset-top);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    .sidebar-header { padding: 12px 14px; border-bottom: none; flex: 1; }
+    .sidebar-header h1 { font-size: 15px; }
+    .sidebar-footer { padding: 8px 14px; border-top: none; display: flex; align-items: center; gap: 10px; }
+    .user-chip { margin-bottom: 0; }
+    .user-info { display: none; }
+    .sidebar-footer button.btn { width: auto; min-height: 36px; padding: 6px 14px; font-size: 13px; }
+    nav#nav-links {
+      order: 3; flex-basis: 100%; flex-direction: row; flex: 1 0 100%;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding: 0 10px 10px; gap: 6px;
+    }
+    nav#nav-links::-webkit-scrollbar { display: none; }
+    nav#nav-links button { white-space: nowrap; min-height: 40px; padding: 8px 14px; }
+
+    main#conteudo {
+      padding: 16px;
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      width: 100%; min-width: 0;
+    }
+    .page-title { font-size: 18px; }
+    .card { padding: 14px; border-radius: 12px; }
+    /* tabelas rolam na horizontal em vez de estourar a tela */
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+    .toast { left: 16px; right: 16px; max-width: none; text-align: center; }
+    .login-box { padding: 24px 20px; }
+  }
+
+  /* app instalado na tela de inicio (standalone) */
+  @media (display-mode: standalone) {
+    body { user-select: none; -webkit-user-select: none; }
+    input, textarea { user-select: text; -webkit-user-select: text; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= TELA DE LOGIN ======================= -->
+<div id="tela-login">
+  <div class="login-box">
+    <h1>Ouvidoria Municipal</h1>
+    <p class="sub">Sistema de reclamações — entre com sua conta</p>
+
+    <form id="form-login">
+      <label>E-mail</label>
+      <input name="email" type="email" required autocomplete="username">
+      <label>Senha</label>
+      <input name="senha" type="password" required autocomplete="current-password">
+      <button type="submit" class="btn">Entrar</button>
+    </form>
+    <div class="login-erro" id="login-erro"></div>
+    <div class="link-toggle" id="toggle-cadastro">Não tem conta? Cadastre-se como cidadão</div>
+
+    <form id="form-cadastro-cidadao" hidden>
+      <label>Nome</label>
+      <input name="nome" required>
+      <label>CPF</label>
+      <input name="cpf" placeholder="000.000.000-00" required>
+      <label>E-mail</label>
+      <input name="email" type="email" required>
+      <label>Senha</label>
+      <input name="senha" type="password" required>
+      <label>Telefone</label>
+      <input name="telefone">
+      <label>Data de nascimento</label>
+      <input name="dataNascimento" type="date" required>
+      <button type="submit" class="btn">Criar conta e entrar</button>
+    </form>
+    <div class="link-toggle" id="toggle-login" hidden>Já tem conta? Fazer login</div>
+
+    <div class="contas-teste">
+      <b>Contas de teste</b><br>
+      Cidadão: ana.pereira@email.com / 123456<br>
+      Técnico: carlos.souza@prefeitura.gov.br / 123456<br>
+      Admin: admin@ouvidoria.gov.br / admin123
+    </div>
+  </div>
+</div>
+
+<!-- ======================= APP (pos-login) ======================= -->
+<div id="app" hidden>
+
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <h1>Ouvidoria Municipal</h1>
+    </div>
+    <nav id="nav-links">
+      <button data-panel="reclamacoes" class="active">Reclamações</button>
+      <button data-panel="ordens" data-roles="TECNICO,ADMIN">Ordens de Serviço</button>
+      <button data-panel="cidadaos" data-roles="ADMIN">Cidadãos</button>
+      <button data-panel="categorias" data-roles="ADMIN">Categorias</button>
+      <button data-panel="orgaos" data-roles="ADMIN">Órgãos</button>
+      <button data-panel="tecnicos" data-roles="ADMIN">Técnicos</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="nome" id="user-nome">-</div>
+          <div class="papel" id="user-papel">-</div>
+        </div>
+      </div>
+      <button class="btn secondary" id="btn-logout">Sair</button>
+    </div>
+  </aside>
+
+  <main id="conteudo">
+
+    <!-- RECLAMACOES -->
+    <section id="panel-reclamacoes" class="panel active">
+      <h2 class="page-title">Reclamações</h2>
+      <div class="card">
+        <h2>Nova reclamação</h2>
+        <form id="form-reclamacao">
+          <label>Título <input name="titulo" required></label>
+          <label>Descrição <input name="descricao" required></label>
+          <label>Categoria
+            <select name="idCategoria" id="select-categoria-reclamacao" required></select>
+          </label>
+          <label>Órgão responsável
+            <select name="idOrgao" id="select-orgao-reclamacao"></select>
+          </label>
+          <label>Logradouro <input name="logradouro" required></label>
+          <label>Número <input name="numero"></label>
+          <label>Bairro <input name="bairro" required></label>
+          <label>CEP <input name="cep"></label>
+          <div class="form-actions">
+            <button type="submit" class="btn">Abrir reclamação</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Buscar por protocolo</h2>
+        <form id="form-busca-protocolo" style="grid-template-columns: 1fr auto;">
+          <label>Protocolo <input name="protocolo" placeholder="OUV-2026-XXXXXXXX" required></label>
+          <div class="form-actions" style="align-self:end;"><button type="submit" class="btn secondary">Buscar</button></div>
+        </form>
+        <div id="resultado-protocolo"></div>
+      </div>
+      <div class="card">
+        <h2>Reclamações cadastradas</h2>
+        <button class="btn secondary" onclick="carregarReclamacoes()">Atualizar lista</button>
+        <table id="tabela-reclamacoes">
+          <thead><tr><th>Protocolo</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Cidadão</th><th>Bairro</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CIDADAOS (ADMIN) -->
+    <section id="panel-cidadaos" class="panel">
+      <h2 class="page-title">Cidadãos</h2>
+      <div class="card">
+        <h2>Novo cidadão</h2>
+        <form id="form-cidadao">
+          <label>Nome <input name="nome" required></label>
+          <label>CPF <input name="cpf" placeholder="000.000.000-00" required></label>
+          <label>E-mail <input name="email" type="email" required></label>
+          <label>Senha <input name="senha" type="password" required></label>
+          <label>Telefone <input name="telefone"></label>
+          <label>Data de nascimento <input name="dataNascimento" type="date" required></label>
+          <div class="form-actions"><button type="submit" class="btn">Cadastrar</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Cidadãos cadastrados</h2>
+        <button class="btn secondary" onclick="carregarCidadaos()">Atualizar lista</button>
+        <table id="tabela-cidadaos">
+          <thead><tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Ativo</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CATEGORIAS (ADMIN) -->
+    <section id="panel-categorias" class="panel">
+      <h2 class="page-title">Categorias de problema</h2>
+      <div class="card">
+        <h2>Nova categoria</h2>
+        <form id="form-categoria">
+          <label>Nome <input name="nome" required></label>
+          <label>Descrição <input name="descricao"></label>
+          <label>Prazo SLA (horas) <input name="prazoSlaHoras" type="number" value="72" required></label>
+          <label>Prioridade padrão
+            <select name="prioridadePadrao" required>
+              <option value="BAIXA">BAIXA</option>
+              <option value="MEDIA" selected>MEDIA</option>
+              <option value="ALTA">ALTA</option>
+              <option value="URGENTE">URGENTE</option>
+            </select>
+          </label>
+          <div class="form-actions"><button type="submit" class="btn">Cadastrar</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Categorias cadastradas</h2>
+        <button class="btn secondary" onclick="carregarCategorias()">Atualizar lista</button>
+        <table id="tabela-categorias">
+          <thead><tr><th>Nome</th><th>Descrição</th><th>SLA (h)</th><th>Prioridade</th><th>Ativa</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORGAOS (ADMIN) -->
+    <section id="panel-orgaos" class="panel">
+      <h2 class="page-title">Órgãos responsáveis</h2>
+      <div class="card">
+        <h2>Novo órgão</h2>
+        <form id="form-orgao">
+          <label>Nome <input name="nome" required></label>
+          <label>CNPJ <input name="cnpj" required></label>
+          <label>Telefone <input name="telefone"></label>
+          <label>E-mail <input name="email" type="email"></label>
+          <div class="form-actions"><button type="submit" class="btn">Cadastrar</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Órgãos cadastrados</h2>
+        <button class="btn secondary" onclick="carregarOrgaos()">Atualizar lista</button>
+        <table id="tabela-orgaos">
+          <thead><tr><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>E-mail</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TECNICOS (ADMIN) -->
+    <section id="panel-tecnicos" class="panel">
+      <h2 class="page-title">Técnicos de campo</h2>
+      <div class="card">
+        <h2>Novo técnico</h2>
+        <form id="form-tecnico">
+          <label>Nome <input name="nome" required></label>
+          <label>CPF <input name="cpf" required></label>
+          <label>E-mail <input name="email" type="email" required></label>
+          <label>Senha <input name="senha" type="password" required></label>
+          <label>Data de nascimento <input name="dataNascimento" type="date" required></label>
+          <label>Matrícula <input name="matricula" required></label>
+          <label>Cargo <input name="cargo" required></label>
+          <label>Data de admissão <input name="dataAdmissao" type="date" required></label>
+          <label>Especialidade <input name="especialidade" required></label>
+          <label>Veículo <input name="veiculo"></label>
+          <div class="form-actions"><button type="submit" class="btn">Cadastrar</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Técnicos cadastrados</h2>
+        <button class="btn secondary" onclick="carregarTecnicos()">Atualizar lista</button>
+        <table id="tabela-tecnicos">
+          <thead><tr><th>Nome</th><th>Matrícula</th><th>Especialidade</th><th>Disponível</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORDENS DE SERVICO (TECNICO + ADMIN) -->
+    <section id="panel-ordens" class="panel">
+      <h2 class="page-title">Ordens de serviço</h2>
+      <div class="card">
+        <h2>Abrir ordem de serviço</h2>
+        <form id="form-ordem">
+          <label>Reclamação
+            <select name="idReclamacao" id="select-reclamacao-ordem" required></select>
+          </label>
+          <label>Órgão responsável
+            <select name="idOrgao" id="select-orgao-ordem" required></select>
+          </label>
+          <div class="form-actions"><button type="submit" class="btn">Abrir OS</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Atribuir técnico</h2>
+        <form id="form-atribuir-tecnico">
+          <label>Ordem de serviço
+            <select name="idOrdemServico" id="select-os-tecnico" required></select>
+          </label>
+          <label>Técnico
+            <select name="idTecnico" id="select-tecnico-os" required></select>
+          </label>
+          <div class="form-actions"><button type="submit" class="btn">Atribuir</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Ordens de serviço</h2>
+        <button class="btn secondary" onclick="carregarOrdens()">Atualizar lista</button>
+        <table id="tabela-ordens">
+          <thead><tr><th>Número</th><th>Status</th><th>Emissão</th><th>Técnico</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+let sessao = null; // { token, id, nome, email, role }
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+
+async function api(path, options) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (sessao) headers['Authorization'] = 'Bearer ' + sessao.token;
+  const res = await fetch(API + path, Object.assign({ headers }, options));
+  if (res.status === 401) {
+    toast('Sessão expirada. Faça login novamente.', true);
+    fazerLogout();
+    throw new Error('Não autenticado');
+  }
+  if (!res.ok) {
+    let msg = 'Erro na requisição (' + res.status + ')';
+    try { const body = await res.json(); if (body.erro) msg = body.erro; } catch (e) {}
+    throw new Error(msg);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// ---------- LOGIN / LOGOUT / SESSAO ----------
+function salvarSessao(s) {
+  sessao = s;
+  localStorage.setItem('ouvidoria_sessao', JSON.stringify(s));
+}
+
+function carregarSessaoSalva() {
+  try {
+    const raw = localStorage.getItem('ouvidoria_sessao');
+    if (raw) sessao = JSON.parse(raw);
+  } catch (e) { sessao = null; }
+}
+
+function fazerLogout() {
+  sessao = null;
+  localStorage.removeItem('ouvidoria_sessao');
+  document.getElementById('app').hidden = true;
+  document.getElementById('tela-login').hidden = false;
+}
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  try { await api('/auth/logout', { method: 'POST' }); } catch (e) {}
+  fazerLogout();
+});
+
+document.getElementById('toggle-cadastro').addEventListener('click', () => {
+  document.getElementById('form-login').hidden = true;
+  document.getElementById('toggle-cadastro').hidden = true;
+  document.getElementById('form-cadastro-cidadao').hidden = false;
+  document.getElementById('toggle-login').hidden = false;
+});
+
+document.getElementById('toggle-login').addEventListener('click', () => {
+  document.getElementById('form-login').hidden = false;
+  document.getElementById('toggle-cadastro').hidden = false;
+  document.getElementById('form-cadastro-cidadao').hidden = true;
+  document.getElementById('toggle-login').hidden = true;
+});
+
+document.getElementById('form-login').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const erroDiv = document.getElementById('login-erro');
+  erroDiv.textContent = '';
+  try {
+    const resp = await fetch(API + '/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(f)
+    });
+    const body = await resp.json();
+    if (!resp.ok) { erroDiv.textContent = body.erro || 'Falha no login'; return; }
+    salvarSessao(body);
+    iniciarApp();
+  } catch (err) { erroDiv.textContent = 'Não foi possível conectar ao servidor'; }
+});
+
+document.getElementById('form-cadastro-cidadao').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const erroDiv = document.getElementById('login-erro');
+  erroDiv.textContent = '';
+  try {
+    const resp = await fetch(API + '/cidadaos', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(f)
+    });
+    const body = await resp.json();
+    if (!resp.ok) { erroDiv.textContent = body.erro || 'Falha no cadastro'; return; }
+    // login automatico apos cadastro
+    const loginResp = await fetch(API + '/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: f.email, senha: f.senha })
+    });
+    const loginBody = await loginResp.json();
+    if (!loginResp.ok) { erroDiv.textContent = 'Conta criada, faça login manualmente'; return; }
+    salvarSessao(loginBody);
+    iniciarApp();
+  } catch (err) { erroDiv.textContent = 'Não foi possível conectar ao servidor'; }
+});
+
+// ---------- NAVEGACAO ----------
+document.getElementById('nav-links').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#nav-links button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('panel-' + e.target.dataset.panel).classList.add('active');
+});
+
+function aplicarPermissoesNav() {
+  document.querySelectorAll('#nav-links button').forEach(btn => {
+    const roles = btn.dataset.roles;
+    if (!roles) { btn.hidden = false; return; }
+    const permitido = roles.split(',').includes(sessao.role);
+    btn.hidden = !permitido;
+  });
+  // se a aba ativa ficou escondida, volta para "reclamacoes"
+  const ativa = document.querySelector('#nav-links button.active');
+  if (ativa && ativa.hidden) {
+    document.querySelectorAll('#nav-links button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('#nav-links button[data-panel="reclamacoes"]').classList.add('active');
+    document.getElementById('panel-reclamacoes').classList.add('active');
+  }
+}
+
+function aplicarPermissoesAcoes() {
+  // acoes administrativas da reclamacao (mudar status) so para ADMIN
+  document.querySelectorAll('.acao-admin').forEach(el => el.hidden = sessao.role !== 'ADMIN');
+}
+
+async function iniciarApp() {
+  document.getElementById('tela-login').hidden = true;
+  document.getElementById('app').hidden = false;
+
+  document.getElementById('user-nome').textContent = sessao.nome;
+  document.getElementById('user-papel').textContent = sessao.role;
+  document.getElementById('user-avatar').textContent = sessao.nome.charAt(0).toUpperCase();
+
+  aplicarPermissoesNav();
+
+  await carregarCategorias();
+  await carregarOrgaos();
+  await carregarReclamacoes();
+
+  if (sessao.role === 'ADMIN') {
+    await carregarCidadaos();
+    await carregarTecnicos();
+  }
+  if (sessao.role === 'TECNICO' || sessao.role === 'ADMIN') {
+    await carregarTecnicos();
+    await carregarOrdens();
+  }
+}
+
+// ---------- CIDADAOS ----------
+async function carregarCidadaos() {
+  try {
+    const lista = await api('/cidadaos');
+    const tbody = document.querySelector('#tabela-cidadaos tbody');
+    tbody.innerHTML = lista.length ? lista.map(c => `
+      <tr>
+        <td>${c.nome}</td>
+        <td>${c.cpf}</td>
+        <td>${c.email}</td>
+        <td>${c.ativo ? 'Sim' : 'Não'}</td>
+        <td class="row-actions">
+          <button class="btn danger" onclick="inativarCidadao(${c.id})">Inativar</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhum cidadão cadastrado</td></tr>';
+  } catch (e) { toast(e.message, true); }
+}
+
+async function inativarCidadao(id) {
+  try { await api('/cidadaos/' + id, { method: 'DELETE' }); toast('Cidadão inativado'); carregarCidadaos(); }
+  catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-cidadao').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  try {
+    await api('/cidadaos', { method: 'POST', body: JSON.stringify(Object.fromEntries(f)) });
+    toast('Cidadão cadastrado com sucesso');
+    e.target.reset();
+    carregarCidadaos();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ---------- CATEGORIAS ----------
+async function carregarCategorias() {
+  try {
+    const lista = await api('/categorias');
+    const tbody = document.querySelector('#tabela-categorias tbody');
+    if (tbody) {
+      tbody.innerHTML = lista.length ? lista.map(c => `
+        <tr>
+          <td>${c.nome}</td>
+          <td>${c.descricao || ''}</td>
+          <td>${c.prazoSlaHoras}</td>
+          <td><span class="badge">${c.prioridadePadrao}</span></td>
+          <td>${c.ativa ? 'Sim' : 'Não'}</td>
+        </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhuma categoria cadastrada</td></tr>';
+    }
+    const select = document.getElementById('select-categoria-reclamacao');
+    if (select) select.innerHTML = lista.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-categoria').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  f.prazoSlaHoras = parseInt(f.prazoSlaHoras, 10);
+  try {
+    await api('/categorias', { method: 'POST', body: JSON.stringify(f) });
+    toast('Categoria cadastrada com sucesso');
+    e.target.reset();
+    carregarCategorias();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ---------- ORGAOS ----------
+async function carregarOrgaos() {
+  try {
+    const lista = await api('/orgaos');
+    const tbody = document.querySelector('#tabela-orgaos tbody');
+    if (tbody) {
+      tbody.innerHTML = lista.length ? lista.map(o => `
+        <tr><td>${o.nome}</td><td>${o.cnpj}</td><td>${o.telefone || ''}</td><td>${o.email || ''}</td></tr>
+      `).join('') : '<tr><td colspan="4" class="empty">Nenhum órgão cadastrado</td></tr>';
+    }
+    ['select-orgao-reclamacao', 'select-orgao-ordem'].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) select.innerHTML = lista.map(o => `<option value="${o.id}">${o.nome}</option>`).join('');
+    });
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-orgao').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  try {
+    await api('/orgaos', { method: 'POST', body: JSON.stringify(f) });
+    toast('Órgão cadastrado com sucesso');
+    e.target.reset();
+    carregarOrgaos();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ---------- TECNICOS ----------
+async function carregarTecnicos() {
+  try {
+    const lista = await api('/tecnicos');
+    const tbody = document.querySelector('#tabela-tecnicos tbody');
+    if (tbody) {
+      tbody.innerHTML = lista.length ? lista.map(t => `
+        <tr><td>${t.nome}</td><td>${t.matricula}</td><td>${t.especialidade}</td><td>${t.disponivel ? 'Sim' : 'Não'}</td></tr>
+      `).join('') : '<tr><td colspan="4" class="empty">Nenhum técnico cadastrado</td></tr>';
+    }
+    const select = document.getElementById('select-tecnico-os');
+    if (select) select.innerHTML = lista.map(t => `<option value="${t.id}">${t.nome} (${t.matricula})</option>`).join('');
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-tecnico').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  try {
+    await api('/tecnicos', { method: 'POST', body: JSON.stringify(f) });
+    toast('Técnico cadastrado com sucesso');
+    e.target.reset();
+    carregarTecnicos();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ---------- RECLAMACOES ----------
+async function carregarReclamacoes() {
+  try {
+    const lista = await api('/reclamacoes');
+    const tbody = document.querySelector('#tabela-reclamacoes tbody');
+    const souAdmin = sessao.role === 'ADMIN';
+    const souCidadao = sessao.role === 'CIDADAO';
+    tbody.innerHTML = lista.length ? lista.map(r => `
+      <tr>
+        <td>${r.protocolo || '-'}</td>
+        <td>${r.titulo}</td>
+        <td><span class="badge">${r.status}</span></td>
+        <td>${r.prioridade || ''}</td>
+        <td>${r.cidadao ? r.cidadao.nome : ''}</td>
+        <td>${r.endereco ? r.endereco.bairro : ''}</td>
+        <td class="row-actions">
+          ${(souCidadao || souAdmin) ? `<button class="btn secondary" onclick="avaliarReclamacao(${r.id})">Avaliar</button>` : ''}
+          ${souAdmin ? `<button class="btn danger" onclick="cancelarReclamacao(${r.id})">Cancelar</button>` : ''}
+        </td>
+      </tr>`).join('') : '<tr><td colspan="7" class="empty">Nenhuma reclamação cadastrada</td></tr>';
+
+    const select = document.getElementById('select-reclamacao-ordem');
+    if (select) select.innerHTML = lista.map(r => `<option value="${r.id}">${r.protocolo} - ${r.titulo}</option>`).join('');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function cancelarReclamacao(id) {
+  const motivo = prompt('Motivo do cancelamento:');
+  if (motivo === null) return;
+  try {
+    await api(`/reclamacoes/${id}/cancelar`, { method: 'PATCH', body: JSON.stringify({ motivo }) });
+    toast('Reclamação cancelada');
+    carregarReclamacoes();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function avaliarReclamacao(id) {
+  const nota = prompt('Nota de avaliação (0 a 5):');
+  if (nota === null) return;
+  try {
+    await api(`/reclamacoes/${id}/avaliar`, { method: 'PATCH', body: JSON.stringify({ nota: parseInt(nota, 10) }) });
+    toast('Avaliação registrada');
+    carregarReclamacoes();
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-reclamacao').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const payload = {
+    titulo: f.titulo,
+    descricao: f.descricao,
+    categoria: { id: parseInt(f.idCategoria, 10) },
+    orgaoResponsavel: f.idOrgao ? { id: parseInt(f.idOrgao, 10) } : null,
+    endereco: { logradouro: f.logradouro, numero: f.numero, bairro: f.bairro, cep: f.cep }
+  };
+  try {
+    const criada = await api('/reclamacoes', { method: 'POST', body: JSON.stringify(payload) });
+    toast('Reclamação aberta! Protocolo: ' + criada.protocolo);
+    e.target.reset();
+    carregarReclamacoes();
+  } catch (err) { toast(err.message, true); }
+});
+
+document.getElementById('form-busca-protocolo').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const div = document.getElementById('resultado-protocolo');
+  try {
+    const r = await api('/reclamacoes/protocolo/' + encodeURIComponent(f.protocolo));
+    div.innerHTML = `
+      <table><tbody>
+        <tr><th>Protocolo</th><td>${r.protocolo}</td></tr>
+        <tr><th>Título</th><td>${r.titulo}</td></tr>
+        <tr><th>Status</th><td><span class="badge">${r.status}</span></td></tr>
+        <tr><th>Prioridade</th><td>${r.prioridade || ''}</td></tr>
+        <tr><th>Cidadão</th><td>${r.cidadao ? r.cidadao.nome : ''}</td></tr>
+        <tr><th>Aberta em</th><td>${r.dataAbertura || ''}</td></tr>
+        <tr><th>Prazo limite</th><td>${r.prazoLimite || ''}</td></tr>
+      </tbody></table>`;
+  } catch (err) {
+    div.innerHTML = '';
+    toast(err.message, true);
+  }
+});
+
+// ---------- ORDENS DE SERVICO ----------
+async function carregarOrdens() {
+  try {
+    const lista = await api('/ordens-servico');
+    const tbody = document.querySelector('#tabela-ordens tbody');
+    tbody.innerHTML = lista.length ? lista.map(o => `
+      <tr>
+        <td>${o.numero}</td>
+        <td><span class="badge">${o.status}</span></td>
+        <td>${o.dataEmissao || ''}</td>
+        <td>${o.tecnico ? o.tecnico.nome : '-'}</td>
+        <td class="row-actions">
+          <button class="btn secondary" onclick="concluirOrdem(${o.id})">Concluir</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhuma ordem de serviço</td></tr>';
+
+    const select = document.getElementById('select-os-tecnico');
+    if (select) select.innerHTML = lista.map(o => `<option value="${o.id}">${o.numero} (${o.status})</option>`).join('');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function concluirOrdem(id) {
+  const relatorio = prompt('Relatório técnico:');
+  if (relatorio === null) return;
+  const custo = prompt('Custo real (R$):', '0');
+  try {
+    await api(`/ordens-servico/${id}/concluir`, {
+      method: 'PATCH',
+      body: JSON.stringify({ relatorio, custoReal: parseFloat(custo || '0') })
+    });
+    toast('Ordem de serviço concluída');
+    carregarOrdens();
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('form-ordem').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  try {
+    await api('/ordens-servico', {
+      method: 'POST',
+      body: JSON.stringify({ idReclamacao: parseInt(f.idReclamacao, 10), idOrgao: parseInt(f.idOrgao, 10) })
+    });
+    toast('Ordem de serviço aberta');
+    e.target.reset();
+    carregarOrdens();
+  } catch (err) { toast(err.message, true); }
+});
+
+document.getElementById('form-atribuir-tecnico').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  try {
+    await api(`/ordens-servico/${f.idOrdemServico}/tecnico`, {
+      method: 'PATCH',
+      body: JSON.stringify({ idTecnico: parseInt(f.idTecnico, 10) })
+    });
+    toast('Técnico atribuído');
+    e.target.reset();
+    carregarOrdens();
+  } catch (err) { toast(err.message, true); }
+});
+
+// ---------- INICIALIZACAO ----------
+carregarSessaoSalva();
+if (sessao) {
+  iniciarApp().catch(() => fazerLogout());
+}
+
+// PWA: service worker (so registra em HTTPS ou localhost; em http://IP-da-LAN o Safari ignora)
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
