@@ -1,9 +1,11 @@
 package com.ouvidoria.service;
 
+import com.ouvidoria.entity.ObservacaoOrdem;
 import com.ouvidoria.entity.OrdemServico;
 import com.ouvidoria.entity.OrgaoResponsavel;
 import com.ouvidoria.entity.Reclamacao;
 import com.ouvidoria.entity.TecnicoCampo;
+import com.ouvidoria.repository.ObservacaoOrdemRepository;
 import com.ouvidoria.repository.OrdemServicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,9 @@ public class OrdemServicoService {
 
     @Autowired
     private OrdemServicoRepository dao;
+
+    @Autowired
+    private ObservacaoOrdemRepository observacaoDao;
 
     @Autowired
     private ReclamacaoService reclamacaoService;
@@ -53,5 +58,25 @@ public class OrdemServicoService {
 
     public List<OrdemServico> listarTodos() {
         return dao.findAll();
+    }
+
+    public List<ObservacaoOrdem> listarObservacoes(Long idOrdemServico) {
+        buscarPorId(idOrdemServico); // garante 404/erro amigavel se a OS nao existir
+        return observacaoDao.findByOrdemServicoIdOrderByDataHoraAsc(idOrdemServico);
+    }
+
+    public ObservacaoOrdem adicionarObservacao(Long idOrdemServico, String texto, String autorNome, String autorPapel) {
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException("Informe o texto da observacao");
+        }
+        if (texto.length() > 2000) {
+            throw new IllegalArgumentException("Observacao muito longa (maximo 2000 caracteres)");
+        }
+        ObservacaoOrdem obs = new ObservacaoOrdem();
+        obs.setOrdemServico(buscarPorId(idOrdemServico));
+        obs.setTexto(texto.trim());
+        obs.setAutorNome(autorNome);
+        obs.setAutorPapel(autorPapel);
+        return observacaoDao.save(obs);
     }
 }

@@ -1,8 +1,12 @@
 package com.ouvidoria.controller;
 
+import com.ouvidoria.entity.ObservacaoOrdem;
 import com.ouvidoria.entity.OrdemServico;
 import com.ouvidoria.enums.Role;
 import com.ouvidoria.security.RequireRole;
+import com.ouvidoria.security.SessaoUsuario;
+import com.ouvidoria.security.UsuarioAtual;
+import jakarta.servlet.http.HttpServletRequest;
 import com.ouvidoria.service.OrdemServicoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,5 +51,19 @@ public class OrdemServicoController {
     @GetMapping
     public ResponseEntity<List<OrdemServico>> listar() {
         return ResponseEntity.ok(serv.listarTodos());
+    }
+
+    @GetMapping("/{id}/observacoes")
+    public ResponseEntity<List<ObservacaoOrdem>> listarObservacoes(@PathVariable Long id) {
+        return ResponseEntity.ok(serv.listarObservacoes(id));
+    }
+
+    @PostMapping("/{id}/observacoes")
+    public ResponseEntity<ObservacaoOrdem> adicionarObservacao(@PathVariable Long id,
+                                                               @RequestBody Map<String, String> body,
+                                                               HttpServletRequest request) {
+        SessaoUsuario usuario = UsuarioAtual.de(request);
+        ObservacaoOrdem obs = serv.adicionarObservacao(id, body.get("texto"), usuario.nome(), usuario.role().name());
+        return ResponseEntity.status(HttpStatus.CREATED).body(obs);
     }
 }
