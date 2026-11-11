@@ -757,8 +757,17 @@ async function carregarCategorias() {
         </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhuma categoria cadastrada</td></tr>';
     }
     const select = document.getElementById('select-categoria-reclamacao');
-    if (select) select.innerHTML = lista.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-  } catch (e) { toast(e.message, true); }
+    if (select) {
+      const ativas = lista.filter(c => c.ativa !== false);
+      select.innerHTML = ativas.length
+        ? ativas.map(c => `<option value="${c.id}">${esc(c.nome)}</option>`).join('')
+        : '<option value="" disabled selected>Nenhuma categoria disponível</option>';
+    }
+  } catch (e) {
+    const select = document.getElementById('select-categoria-reclamacao');
+    if (select) select.innerHTML = '<option value="" disabled selected>Erro ao carregar — feche e abra de novo</option>';
+    toast(e.message, true);
+  }
 }
 
 document.getElementById('form-categoria').addEventListener('submit', async (e) => {
@@ -785,9 +794,17 @@ async function carregarOrgaos() {
     }
     ['select-orgao-reclamacao', 'select-orgao-ordem'].forEach(id => {
       const select = document.getElementById(id);
-      if (select) select.innerHTML = lista.map(o => `<option value="${o.id}">${o.nome}</option>`).join('');
+      if (select) select.innerHTML = lista.length
+        ? lista.map(o => `<option value="${o.id}">${esc(o.nome)}</option>`).join('')
+        : '<option value="" disabled selected>Nenhum órgão disponível</option>';
     });
-  } catch (e) { toast(e.message, true); }
+  } catch (e) {
+    ['select-orgao-reclamacao', 'select-orgao-ordem'].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) select.innerHTML = '<option value="" disabled selected>Erro ao carregar — feche e abra de novo</option>';
+    });
+    toast(e.message, true);
+  }
 }
 
 document.getElementById('form-orgao').addEventListener('submit', async (e) => {
@@ -882,6 +899,9 @@ function alternarFormReclamacao(abrir) {
   btn.classList.toggle('secondary', abrir);
   btn.setAttribute('aria-expanded', String(abrir));
   if (abrir) {
+    // recarrega as listas toda vez que abre (evita ficar vazio se a 1a carga falhou)
+    carregarCategorias();
+    carregarOrgaos();
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     const t = card.querySelector('input[name=titulo]');
     if (t && !matchMedia('(max-width: 760px)').matches) t.focus();
